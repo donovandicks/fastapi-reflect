@@ -1,0 +1,19 @@
+[project]
+name = "fastapi-reflect"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic",
+    "pydantic-ai",
+    "logfire",
+    "fastapi[standard]",
+    "opentelemetry-instrumentation-fastapi",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff",
+    "typing-extensions>=4.12.2",
+]
