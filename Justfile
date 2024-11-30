@@ -1,6 +1,3 @@
-build:
-  uv run ./src/fastapi_reflect/schema.py
-
 dev:
   uv run --env-file .env -- fastapi dev ./src/fastapi_reflect/main.py
 
