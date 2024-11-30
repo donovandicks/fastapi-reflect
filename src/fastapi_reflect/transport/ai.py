@@ -1,14 +1,18 @@
 from fastapi import APIRouter
 
-from fastapi_reflect.services.ai import Deps, agent
-from fastapi_reflect.services.songs import SongService
-from fastapi_reflect.types.ai import GenerateQueryRequest, GenerateQueryResponse
+from fastapi_reflect.services.ai import AIService
+from fastapi_reflect.types.ai import GenAIRequest, GenAIResponse
 
 ai_router = APIRouter(prefix="/v1/ai", tags=["ai"])
 
 
-@ai_router.post("/query")
-async def gen_query(req: GenerateQueryRequest) -> GenerateQueryResponse:
-    deps = Deps(songs=SongService())
-    result = await agent.run(user_prompt=req.user_prompt, deps=deps)
-    return GenerateQueryResponse(generated_request=result.data)
+@ai_router.post("/gen-api")
+async def gen_api_req(req: GenAIRequest) -> GenAIResponse:
+    result = await AIService.gen_api_request(user_prompt=req.user_prompt)
+    return GenAIResponse(response=result.request)
+
+
+@ai_router.post("/gen-sql")
+async def gen_sql_qry(req: GenAIRequest) -> GenAIResponse:
+    result = await AIService.gen_sql_request(user_prompt=req.user_prompt)
+    return GenAIResponse(response=result.query)
