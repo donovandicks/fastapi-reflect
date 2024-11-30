@@ -7,9 +7,11 @@ requires-python = ">=3.12"
 dependencies = [
     "pydantic",
     "pydantic-ai",
-    "logfire",
+    "logfire[psycopg2,sqlalchemy]",
     "fastapi[standard]",
     "opentelemetry-instrumentation-fastapi",
+    "sqlmodel>=0.0.22",
+    "psycopg2>=2.9.10",
 ]
 
 [tool.uv]

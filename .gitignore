@@ -2,3 +2,6 @@
 **/*.egg-info
 **/openapi.*
 **/*.pyc
+**/__pycache__
+.venv
+.logfire
