@@ -3,7 +3,7 @@ from typing import Sequence
 
 import sqlalchemy
 from pydantic import UUID4
-from sqlmodel import Session, select
+from sqlmodel import Session, delete, select
 
 from fastapi_reflect.datastore import engine
 from fastapi_reflect.types.songs import Song
@@ -52,14 +52,13 @@ class PostgresRepository(Repository):
                 return None
 
     def create(self, song: Song) -> Song:
-        with Session(engine) as s:
+        with Session(engine, expire_on_commit=False) as s:
             s.add(song)
             s.commit()
         return song
 
     def delete(self, id: UUID4) -> None:
+        assert id, "delete clause missing id"
         with Session(engine) as s:
-            maybe_song = self.get(id=id)
-            if maybe_song:
-                s.delete(maybe_song)
-                s.commit()
+            s.exec(delete(Song).where(Song.id == id))  # type: ignore
+            s.commit()

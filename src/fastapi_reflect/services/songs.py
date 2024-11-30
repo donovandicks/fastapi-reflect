@@ -16,8 +16,8 @@ class SongService(metaclass=SingletonMeta):
         self._repo = repo
 
     def create(self, req: CreateSongRequest) -> Song:
-        record = Song.from_request(req)
-        return self._repo.create(record)
+        song = Song.from_request(req)
+        return self._repo.create(song)
 
     def delete(self, id: UUID4) -> None:
         return self._repo.delete(id)
