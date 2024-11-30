@@ -1,18 +1,18 @@
-from typing import Optional
+from typing import Sequence
 
 from pydantic import UUID4
 
-from fastapi_reflect.repositories.songs import SongRepository
+from fastapi_reflect.repositories.songs import InMemRepository, Repository
 from fastapi_reflect.types.songs import CreateSongRequest, Song
 from fastapi_reflect.utils.singleton import SingletonMeta
 
 
 class SongService(metaclass=SingletonMeta):
-    _repo: SongRepository
+    _repo: Repository
 
-    def __init__(self, repo: Optional[SongRepository]) -> None:
+    def __init__(self, repo: Repository | None = None) -> None:
         if not repo:
-            repo = SongRepository()
+            repo = InMemRepository()
         self._repo = repo
 
     def create(self, req: CreateSongRequest) -> Song:
@@ -22,7 +22,7 @@ class SongService(metaclass=SingletonMeta):
     def delete(self, id: UUID4) -> None:
         return self._repo.delete(id)
 
-    def list(self) -> list[Song]:
+    def list(self) -> Sequence[Song]:
         return self._repo.list()
 
     def get(self, id: UUID4) -> Song | None:

@@ -1,22 +1,22 @@
 from http import HTTPStatus
+from typing import Sequence
 
-import logfire
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import UUID4
 
-from fastapi_reflect.repositories.songs import SongRepository
+from fastapi_reflect.repositories.songs import PostgresRepository
 from fastapi_reflect.services.songs import SongService
 from fastapi_reflect.types.songs import CreateSongRequest, Song
 
 songs_router = APIRouter(prefix="/v1/songs", tags=["songs"])
 
-repo = SongRepository()
+repo = PostgresRepository()
 svc = SongService(repo)
 
 
 @songs_router.get("")
 @songs_router.get("/")
-def list_songs() -> list[Song]:
+def list_songs() -> Sequence[Song]:
     return svc.list()
 
 
@@ -33,7 +33,6 @@ def get_song(id: UUID4) -> Song:
 @songs_router.post("")
 @songs_router.post("/")
 def create_song(req: CreateSongRequest) -> Song:
-    logfire.info(f"received create request: {req=}")
     return svc.create(req)
 
 

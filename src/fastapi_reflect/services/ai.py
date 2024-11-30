@@ -7,6 +7,7 @@ from pydantic_ai.models import KnownModelName
 from fastapi_reflect.services.docs import DocsService
 from fastapi_reflect.services.songs import SongService
 from fastapi_reflect.types.ai import APIRequest
+from fastapi_reflect.types.songs import get_schema
 
 model: Final[KnownModelName] = "openai:gpt-4o-mini"
 
@@ -25,11 +26,17 @@ agent = Agent(
 
 @agent.system_prompt
 def system_prompt() -> str:
-    return f"""\
+    prompt = f"""\
 You are given the following OpenAPI Spec:
 
 ```
 {DocsService.get_spec()}
+```
+
+And the following database schema:
+
+```
+{get_schema()}
 ```
 
 Generate curl commands that correspond to the user's query. Ensure the host, port,
@@ -47,6 +54,8 @@ Example
     Query: How can I get an individual song?
     Response: curl http://127.0.0.1:8000/api/v1/songs/<Song UUID>
     """
+
+    return prompt
 
 
 @agent.tool
