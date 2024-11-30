@@ -1,22 +1,22 @@
-from abc import ABC
 from typing import Sequence
 
 import sqlalchemy
 from pydantic import UUID4
 from sqlmodel import Session, delete, select
 
-from fastapi_reflect.datastore import engine
+from fastapi_reflect.datastore import Repository, RepositoryKind, engine
 from fastapi_reflect.types.songs import Song
 
 
-class Repository(ABC):
-    def list(self) -> Sequence[Song]: ...
-    def get(self, id: UUID4) -> Song | None: ...
-    def create(self, song: Song) -> Song: ...
-    def delete(self, id: UUID4) -> None: ...
+def new_song_repository(kind: RepositoryKind) -> Repository[Song]:
+    match kind:
+        case RepositoryKind.InMemory:
+            return InMemRepository()
+        case RepositoryKind.Postgres:
+            return PostgresRepository()
 
 
-class InMemRepository(Repository):
+class InMemRepository(Repository[Song]):
     _store: dict[UUID4, Song]
 
     def __init__(self) -> None:
@@ -36,10 +36,7 @@ class InMemRepository(Repository):
         del self._store[id]
 
 
-class PostgresRepository(Repository):
-    def __init__(self) -> None:
-        pass
-
+class PostgresRepository(Repository[Song]):
     def list(self) -> Sequence[Song]:
         with Session(engine) as s:
             return s.exec(select(Song)).all()

@@ -1,30 +1,23 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
 
-from fastapi_reflect.agents.config import Model
-from fastapi_reflect.services.songs import SongService
+from fastapi_reflect.agents.config import AgentDeps, Model
+from fastapi_reflect.agents.tools import _list_songs
 from fastapi_reflect.types.songs import get_schema
-
-
-@dataclass
-class SQLDeps:
-    songs: SongService
 
 
 class GeneratedSQLQuery(BaseModel):
     query: str = Field(description="The generated SQL query")
 
 
-agent = Agent(
+SQLAgent = Agent(
     model=Model,
     result_type=GeneratedSQLQuery,
-    deps_type=SQLDeps,
+    deps_type=AgentDeps,
 )
 
 
-@agent.system_prompt
+@SQLAgent.system_prompt
 def system_prompt() -> str:
     prompt = f"""\
 Given the following PostgreSQL table schema, your job is to write a SQL query
@@ -46,7 +39,11 @@ Example
     return prompt
 
 
-@agent.tool
-def list_songs(ctx: RunContext[SQLDeps]) -> list[str]:
-    """List all current songs in the database."""
-    return [song.model_dump_json() for song in ctx.deps.songs.list()]
+@SQLAgent.tool
+def list_songs(ctx: RunContext[AgentDeps]) -> list[str]:
+    """List all current songs in the database.
+
+    Returns:
+        list[str]: A list of JSON-stringified song objects from the database
+    """
+    return _list_songs(ctx)

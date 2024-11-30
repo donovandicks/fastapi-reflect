@@ -1,6 +1,9 @@
 import os
+from enum import StrEnum
 
 from sqlmodel import create_engine
+
+from .repository import Repository
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://postgres:password@localhost:5433/songs"
@@ -8,4 +11,10 @@ DATABASE_URL = os.getenv(
 
 engine = create_engine(DATABASE_URL)
 
-__all__ = ["engine"]
+
+class RepositoryKind(StrEnum):
+    InMemory = "IN_MEMORY"
+    Postgres = "POSTGRES"
+
+
+__all__ = ["engine", "Repository", "RepositoryKind"]

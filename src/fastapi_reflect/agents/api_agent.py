@@ -1,30 +1,23 @@
-from dataclasses import dataclass
-
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
 
-from fastapi_reflect.agents.config import Model
+from fastapi_reflect.agents.config import AgentDeps, Model
+from fastapi_reflect.agents.tools import _list_songs
 from fastapi_reflect.services.docs import DocsService
-from fastapi_reflect.services.songs import SongService
-
-
-@dataclass
-class APIDeps:
-    songs: SongService
 
 
 class GeneratedAPIRequest(BaseModel):
     request: str = Field(description="The generated code to send a request")
 
 
-agent = Agent(
+APIAgent = Agent(
     model=Model,
     result_type=GeneratedAPIRequest,
-    deps_type=APIDeps,
+    deps_type=AgentDeps,
 )
 
 
-@agent.system_prompt
+@APIAgent.system_prompt
 def system_prompt() -> str:
     prompt = f"""\
 You are given the following OpenAPI Spec:
@@ -55,7 +48,11 @@ Example
     return prompt
 
 
-@agent.tool
-def list_songs(ctx: RunContext[APIDeps]) -> list[str]:
-    """List all current songs in the database."""
-    return [song.model_dump_json() for song in ctx.deps.songs.list()]
+@APIAgent.tool
+def list_songs(ctx: RunContext[AgentDeps]) -> list[str]:
+    """List all current songs in the database.
+
+    Returns:
+        list[str]: A list of JSON-stringified song objects from the database
+    """
+    return _list_songs(ctx)
